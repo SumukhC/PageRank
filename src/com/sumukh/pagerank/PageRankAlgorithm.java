@@ -51,7 +51,7 @@ public class PageRankAlgorithm extends Configured implements Tool {
             String line = value.toString();
             String[] parts = line.split("\t");
             String title = parts[0];
-            String[] pageRank = parts[1].split("\\#\\#\\#LINKS\\#\\#\\#");
+            String[] pageRank = parts[1].split("###LINKS###");
             double pageRankScore = Double.parseDouble(pageRank[0]);
             String[] outlinks = null;
             if (pageRank.length > 1 && !pageRank[1].isEmpty()) {
@@ -102,7 +102,7 @@ public class PageRankAlgorithm extends Configured implements Tool {
                     valueOfC += Double.parseDouble(v);
                 } catch(NumberFormatException e) {
                     //Get outlinks
-                    outlinks = v.split("\\#\\#\\#OUTLINKS\\#\\#\\#")[1];
+                    outlinks = v.split("###OUTLINKS###")[1];
                 }
             }
 
