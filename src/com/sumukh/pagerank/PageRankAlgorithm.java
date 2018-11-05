@@ -79,11 +79,11 @@ public class PageRankAlgorithm extends Configured implements Tool {
 
     public static class PageRankAlgorithmReducer extends Reducer<Text, Text, Text, Text> {
 
-        private double DAMPING_FACTOR = 0.90;
+        private double DAMPING_FACTOR = 0.85;
 
         @Override
         protected void reduce(Text key, Iterable<Text> values, Context context) throws IOException, InterruptedException {
-            double valueOfC = 0.0;
+            double aggregatedScore = 0.0;
             double pageRank;
             boolean isSelfPage = false;
             String outlinks = "";
@@ -99,10 +99,14 @@ public class PageRankAlgorithm extends Configured implements Tool {
                 }
 
                 try {
-                    valueOfC += Double.parseDouble(v);
+                    aggregatedScore += Double.parseDouble(v);
                 } catch(NumberFormatException e) {
                     //Get outlinks
-                    outlinks = v.split("###OUTLINKS###")[1];
+
+                    String[] vals = v.split("###OUTLINKS###");
+                    if (vals.length > 1) {
+                        outlinks = vals[1];
+                    }
                 }
             }
 
@@ -111,9 +115,9 @@ public class PageRankAlgorithm extends Configured implements Tool {
             }
 
             //Compute new page rank
-            pageRank = (1.0 - DAMPING_FACTOR) + (DAMPING_FACTOR * valueOfC);
+            pageRank = (1.0 - DAMPING_FACTOR) + (DAMPING_FACTOR * aggregatedScore);
 
-            //Emit ‘<Title>, <New Page Rank, List of outgoing link>’
+            //Put out ‘<Title>, <New Page Rank, List of outgoing link>’
             context.write(new Text(key), new Text(Double.toString(pageRank) + "###LINKS###" + outlinks));
         }
     }
